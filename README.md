@@ -1,4 +1,3 @@
-# FTWD_Node_Weekly_01
 ### Purpose
 The purpose of this application is to allow user to upload and dowload files.
 - Utilizing the filessystem module - which allows us to store, access and manage data.
