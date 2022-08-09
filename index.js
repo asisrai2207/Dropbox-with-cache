@@ -1,3 +1,9 @@
+/**********************************************
+ * Dropbox Challenge
+ * ==================================
+ ***********************************************/
+
+// The purpose of this challenge is to ensure that you solidify your understanding of Node.js, as well as connect the frontend files to the backend.
 
 /** # SETUP #
 /*  ================== */
@@ -6,23 +12,20 @@ const express = require("express");
 const fs = require("fs");
 const expressFileUpload = require("express-fileupload");
 const path = require("path");
-""
+
 /** 2) set up app and port */
 const app = express();
-const hostname = "127.0.0.1";
 const port = 3000;
 /** # Configure App #
 /*  ====================== */
 /** 3) Configure Application */
-
-// This part has already been done for you! Just uncomment the lines below.
 
 app.use(express.urlencoded({ extended: false }));
 app.use(expressFileUpload());
 const uploadDirectory = __dirname + path.sep + "uploaded";
 
 app.use(express.static("uploaded"));
-app.use(express.static("public")); //for css folder
+app.use(express.static("public"));
 let caches = {};
 
 /** # Read File #
@@ -68,13 +71,12 @@ function writeFile(name, data) {
   console.log("writeFile function running");
   console.log("Writing to directory: " + uploadDirectory + "/" + name);
   return new Promise((resolve, reject) => {
-    // CODE BELOW THIS LINE
     // fs.writeFile
     fs.writeFile(uploadDirectory + "/" + name, data, (err) => {
       if (err) {
         return reject("Error");
       } else {
-        console.log("File name: " + name);
+        console.log(name);
         resolve(name);
       }
     });
@@ -96,20 +98,25 @@ app.get("/", (req, res) => {
 /** 7) Post Data */
 
 app.post("/files", (req, res) => {
-  if (req.files) {
+  console.log("POST Method: " + req.files.upload.name);
+  if (req.files.upload) {
     let file = req.files.upload;
+    console.log("POST Method: " + file.name);
     writeFile(file.name, file.data) //calling writFile function to add the file data and file name
+      .then(readFile)
       .then((data) => {
         caches[file.name] = data; //save the data on cache
+        console.log(caches);
       });
-    res.writeHead(200, { "Content-Type": "text/html" });
-    res.write(`You have uploaded the file: ${file.name} </br></br>`);
+    res.set("content-Type", "text/html");
+    res.writeHead(200);
+    res.write(`You have uploaded the file: ${file.name} </br>`);
     res.write(
-      `To download, go to: http:localhost:${port}/uploaded/${file.name} </br></br> `
+      `To download, go to: http:localhost:${port}/uploaded/${file.name} </br> </br>`
     );
-    res.write(`<button><a href="/">Return Home</a></button></br></br>`);
+    res.write(`<button><a href="/">Return Home</a></button></br> </br>`);
     res.write(
-      `To View all the files uploaded please click the button below </br>`
+      `To View all the files uploaded please click the button below </br> </br>`
     );
     res.end(`<button><a href="/directory">Directory</a></button></br>`);
     console.log(`The file: ${file.name} was uploaded to the server.`);
@@ -124,7 +131,6 @@ app.post("/files", (req, res) => {
 
 app.get("/uploaded/:name", (req, res) => {
   console.log("GET method: uploaded/:name");
-  // CODE BELOW THIS LINE
   const params = req.params.name;
   if (caches[params]) {
     res.send(caches[params]); // if the caches has the uploaded file than it will send the file
@@ -160,5 +166,5 @@ app.get("/directory", (req, res) => {
 /*  ====================== */
 
 app.listen(port, () => {
-  console.log(`server running at http://${hostname}:${port}/`);
+  console.log(`Connected to server! Go to localhost: ${port}`);
 });
